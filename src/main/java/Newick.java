@@ -1,13 +1,13 @@
 public class Newick {
     private Node<String> root = null;
     
-    private String newick = "";
+    public final String newick;
     
     public Newick(String newick) {
         this.newick = newick;
     }
     
-    private String nextNewickElement() {
+    public String nextNewickElement() {
     	return "";
     }
     
