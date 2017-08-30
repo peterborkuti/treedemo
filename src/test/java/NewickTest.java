@@ -28,15 +28,20 @@ public class NewickTest {
 	}
 
 	@Test
-	public void testNextNewickElement(){
+	public void testNextNewickElementForOneElement(){
 		Newick newick = new Newick("root");
-		assertEquals("root", newick.nextNewickElement());
-		newick = new Newick("(");
-		assertEquals("(", newick.nextNewickElement());
-		newick = new Newick("root(");
-		assertEquals("root", newick.nextNewickElement());
-		assertEquals("(", newick.nextNewickElement());
-
+		assertEquals("only root element", "root", newick.nextNewickElement());
 	}
-	
+
+	@Test
+	public void testNextNewickElementForTree(){
+		Newick newick = new Newick("root(child)");
+		assertEquals("root", "root", newick.nextNewickElement());
+		/*
+		assertEquals("(", "(", newick.nextNewickElement());
+		assertEquals("child", "child", newick.nextNewickElement());
+		assertEquals(")", ")", newick.nextNewickElement());
+		assertEquals("reading after end", "", newick.nextNewickElement());
+		*/
+	}
 }
