@@ -6,7 +6,7 @@ public class Newick {
 
     public final String newick;
 
-    private String separateAtNonWordChars = "\\W";
+    private String separateAtWholeWordOrOneCharNonWord = "\\W{1}|\\w+";
 
     private Matcher matcher;
     private int matcherIndex = 0;
@@ -14,51 +14,14 @@ public class Newick {
 
     public Newick(String newick) {
     	newick = newick.toLowerCase();
-    	newick = newick.replaceAll("[^a-z(),]", "");
+    	newick = newick.replaceAll("[^a-z0-9(),]", "");
         this.newick = newick;
-        Pattern p = Pattern.compile(separateAtNonWordChars);
+        Pattern p = Pattern.compile(separateAtWholeWordOrOneCharNonWord);
         matcher = p.matcher(newick);
-
     }
 
-    private String findAndGiveTheStringUpToMatchStart() {
-    	String match = "";
-
-		boolean found = matcher.find();
-
-		if (found) {
-			match = newick.substring(matcherIndex, matcher.start());
-
-			matcherIndex = matcher.start();
-		}
-		else {
-			match = newick.substring(matcherIndex);
-		}
-
-		return match;
-    }
-
-    private String giveTheStringAtMatch() {
-		String match = newick.substring(matcher.start(), matcher.end());
-
-		matcherIndex = matcher.end();
-
-		return match;
-    }
-
-    public String nextNewickElement() {
-    	String nextNewick = "";
-
-    	if (shouldExecuteFind) {
-    		nextNewick = findAndGiveTheStringUpToMatchStart();
-    	}
-    	else {
-    		nextNewick = giveTheStringAtMatch();
-    	}
-
-    	shouldExecuteFind = !shouldExecuteFind;
-
-    	return nextNewick;
+    private String nextNewickElement() {
+   		return (matcher.find()) ? newick.substring(matcher.start(), matcher.end()) : "";
     }
 
     public void parse() {
