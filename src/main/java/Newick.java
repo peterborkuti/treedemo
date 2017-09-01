@@ -6,61 +6,98 @@ import java.util.regex.Pattern;
 public class Newick {
 	public final String newick;
 
-	private static final String separateAtWholeWordOrOneCharNonWord = "\\W{1}|\\w+";
+	private Node<String> lastNode;
 
-	private Matcher matcher;
+	private Matcher newickElementMatcher;
 
 	private Stack<Node<String>> parents = new Stack<Node<String>>();
+
+	private boolean thereIsMoreNewickElement = true;
 
 	public Newick(String newick) {
 		newick = newick.toLowerCase();
 		newick = newick.replaceAll("[^a-z0-9(),]", "");
 		this.newick = newick;
+
+		String separateAtWholeWordOrOneCharNonWord = "\\W{1}|\\w+";
 		Pattern p = Pattern.compile(separateAtWholeWordOrOneCharNonWord);
-		matcher = p.matcher(newick);
+		newickElementMatcher = p.matcher(newick);
 	}
 
 	private String nextNewickElement() {
-		return (matcher.find()) ? newick.substring(matcher.start(), matcher.end()) : "";
+		String newickElement = "";
+
+		if (newickElementMatcher.find()) {
+			newickElement =
+				newick.substring(
+					newickElementMatcher.start(), newickElementMatcher.end()
+				);
+		}
+		else {
+			thereIsMoreNewickElement  = false;
+		}
+
+		return newickElement;
 	}
 
-	private void processNewick(Node<String> lastNode) {
+	private void processNewick() {
+		while (thereIsMoreNewickElement) {
+			processOneElement();
+		}
+	}
+
+	private void processOneElement() {
 		String newickElement = nextNewickElement();
 
-		if (newickElement == "") return;
+		if (!thereIsMoreNewickElement) return;
 
 		if (isWord(newickElement)) {
-			Node<String> child = new Node<String>(newickElement);
-			lastNode.addChild(child);
-			processNewick(child);
+			newNodeIsLastNodesChild(newickElement);
 		}
 		else {
 			switch (newickElement.charAt(0)) {
 				case '(' :
-					parents.push(lastNode);
-					processNewick(lastNode);
+					lastNodeIsNewParent();
 					break;
 				case ')' :
-					processNewick(parents.pop());
+					setLastParentAsLastNodeAndRemoveItFromParents();
 					break;
 				case ',' :
-					processNewick(parents.peek());
+					setLastNodeToLastParent();
 					break;
 			}
 		}
+	}
+
+	private void setLastNodeToLastParent() {
+		lastNode = parents.peek();
+	}
+
+	private void setLastParentAsLastNodeAndRemoveItFromParents() {
+		lastNode = parents.pop();
+	}
+
+	private void lastNodeIsNewParent() {
+		parents.push(lastNode);
+	}
+
+	private void newNodeIsLastNodesChild(String newickElement) {
+		Node<String> child = new Node<String>(newickElement);
+		lastNode.addChild(child);
+		lastNode = child;
 	}
 
 	private boolean isWord(String s) {
 		return s.matches("\\w+");
 	}
 
-	
-	
 	public Node<String> parse() {
 		String rootData = nextNewickElement();
 		Node<String> root = new Node<String>(rootData);
 
-		processNewick(root);
+		lastNode = root;
+
+		processNewick();
 
 		return root;
 	}
