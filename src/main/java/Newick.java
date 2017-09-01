@@ -41,13 +41,10 @@ public class Newick {
 					processNewick(lastNode);
 					break;
 				case ')' :
-					parents.peek().addChild(lastNode);
-					parents.pop();
-					processNewick(lastNode);
+					processNewick(parents.pop());
 					break;
 				case ',' :
-					parents.peek().addChild(lastNode);
-					processNewick(lastNode);
+					processNewick(parents.peek());
 					break;
 			}
 		}
