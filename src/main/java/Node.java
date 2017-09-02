@@ -4,6 +4,7 @@ import java.util.Collections;
 
 public class Node<T> {
 	public final T data;
+
 	private final List<Node<T>> children = new ArrayList<Node<T>>();
 
 	public Node(T e) {
@@ -26,6 +27,10 @@ public class Node<T> {
 		}
 
 		return Collections.unmodifiableList(childrenData);
+	}
+
+	public int getChildrenCount() {
+		return children.size();
 	}
 
 	public String toString() {
